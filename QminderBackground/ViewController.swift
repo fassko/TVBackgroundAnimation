@@ -57,6 +57,15 @@ class ViewController: UIViewController {
     layers.append(tmpLayer)
     animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
     
+    beziers.removeAll()
+    for point in spiralPoints {
+      beziers.append(createBezierPath(point1: point, point2: CGPoint(x: 600, y: 300), point3: CGPoint(x: 800, y: 800)))
+    }
+    tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.black)
+    backgroundView.layer.addSublayer(tmpLayer)
+    layers.append(tmpLayer)
+    animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
+    
     for elem in animatedBeziers {
       
       let group = CAAnimationGroup()
