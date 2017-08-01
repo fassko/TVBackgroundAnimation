@@ -9,15 +9,77 @@
 import UIKit
 import QuartzCore
 
+typealias AnimatableElement = (beziers: [UIBezierPath], layer: CAShapeLayer)
+
 class ViewController: UIViewController {
   
   @IBOutlet weak var backgroundView: UIView!
   
-  var layers: [CAShapeLayer] = []
-  var animateBez: [[UIBezierPath]] = []
+  private var layers: [CAShapeLayer] = []
+  private var animatedBeziers: [AnimatableElement] = []
   
   override func viewDidLoad() {
     super.viewDidLoad()
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    
+    let spiralPoints = drawSpiral(arc: 10.0, separation: 3.0, numPoints: 100, offset: CGPoint(x: 400, y: 600))
+    
+    var beziers: [UIBezierPath] = []
+    beziers.removeAll()
+    
+    var tmpLayer: CAShapeLayer
+    
+    for point in spiralPoints {
+      beziers.append(createBezierPath(point1: CGPoint(x: 0, y: 300), point2: point, point3: CGPoint(x: 0, y: 800)))
+    }
+    tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.brown)
+    backgroundView.layer.addSublayer(tmpLayer)
+    layers.append(tmpLayer)
+    animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
+    
+    beziers.removeAll()
+    for point in spiralPoints {
+      beziers.append(createBezierPath(point1: CGPoint(x: 0, y: 800), point2: point, point3: CGPoint(x: 0, y: 1080)))
+    }
+    tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.green)
+    backgroundView.layer.addSublayer(tmpLayer)
+    layers.append(tmpLayer)
+    animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
+    
+    beziers.removeAll()
+    for point in spiralPoints {
+      beziers.append(createBezierPath(point1: CGPoint(x: 0, y: 1080), point2: point, point3: CGPoint(x: 600, y: 1080)))
+    }
+    tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.gray)
+    backgroundView.layer.addSublayer(tmpLayer)
+    layers.append(tmpLayer)
+    animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
+    
+    for elem in animatedBeziers {
+      
+      let group = CAAnimationGroup()
+      var animations: [CAAnimation] = []
+      
+      for i in 0...elem.beziers.count-2 {
+        let animation = CABasicAnimation(keyPath: "path")
+        animation.fromValue = elem.beziers[i].cgPath
+        animation.toValue = elem.beziers[i+1].cgPath
+        animation.duration = 1.0
+        animation.beginTime = CFTimeInterval(1 * i)
+        animations.append(animation)
+      }
+      
+      group.animations = animations
+      group.repeatCount = .infinity
+      group.duration = CFTimeInterval(animations.count)
+      group.isRemovedOnCompletion = false
+      group.fillMode = kCAFillModeForwards
+      group.autoreverses = true
+      
+      elem.layer.add(group, forKey: "anim")
+    }
   }
   
   func createBezierPath(point1: CGPoint, point2: CGPoint, point3: CGPoint) -> UIBezierPath {
@@ -39,68 +101,6 @@ class ViewController: UIViewController {
     shapeLayer.fillColor = fillColor.cgColor
     
     return shapeLayer
-  }
-  
-  override func viewWillAppear(_ animated: Bool) {
-    
-    let spiralPoints = drawSpiral(arc: 10.0, separation: 3.0, numPoints: 100, offset: CGPoint(x: 400, y: 600))
-    
-    var beziers: [UIBezierPath] = []
-    beziers.removeAll()
-    
-    for point in spiralPoints {
-      beziers.append(createBezierPath(point1: CGPoint(x: 0, y: 300), point2: point, point3: CGPoint(x: 0, y: 800)))
-    }
-    animateBez.append(beziers)
-    
-    beziers.removeAll()
-    for point in spiralPoints {
-      beziers.append(createBezierPath(point1: CGPoint(x: 0, y: 800), point2: point, point3: CGPoint(x: 0, y: 1080)))
-    }
-    animateBez.append(beziers)
-    
-    beziers.removeAll()
-    for point in spiralPoints {
-      beziers.append(createBezierPath(point1: CGPoint(x: 0, y: 1080), point2: point, point3: CGPoint(x: 600, y: 1080)))
-    }
-    animateBez.append(beziers)
-    
-    var i = 0
-    for beziers in animateBez {
-      layers.append(createTriangleLayer(path: beziers.first!, fillColor: i == 1 ? UIColor.gray : UIColor.brown))
-      i = i + 1
-    }
-    
-    for layer in layers {
-      backgroundView.layer.addSublayer(layer)
-    }
-    
-    i = 0
-    for beziers in animateBez {
-      
-      let group = CAAnimationGroup()
-      var animations: [CAAnimation] = []
-      
-      for n in 0...beziers.count-2 {
-        let animation = CABasicAnimation(keyPath: "path")
-        animation.fromValue = beziers[n].cgPath
-        animation.toValue = beziers[n+1].cgPath
-        animation.duration = 1.0
-        animation.beginTime = CFTimeInterval(1 * n)
-        animations.append(animation)
-      }
-      
-      group.animations = animations
-      group.repeatCount = .infinity
-      group.duration = CFTimeInterval(animations.count)
-      group.isRemovedOnCompletion = false
-      group.fillMode = kCAFillModeForwards
-      group.autoreverses = true
-      
-      layers[i].add(group, forKey: "anim")
-      
-      i = i + 1
-    }
   }
   
   func drawSpiral(arc: Double, separation: Double, numPoints: Int, offset: CGPoint) -> [CGPoint] {
