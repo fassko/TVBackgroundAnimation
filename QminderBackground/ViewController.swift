@@ -24,7 +24,8 @@ class ViewController: UIViewController {
   
   override func viewWillAppear(_ animated: Bool) {
     
-    let spiralPoints = drawSpiral(arc: 10.0, separation: 3.0, numPoints: 100, offset: CGPoint(x: 400, y: 600))
+    let spiralPoints = drawSpiral(arc: 15.0, separation: 1.0, numPoints: 500, offset: CGPoint(x: 400, y: 600))
+    let spiral2Points = drawSpiral(arc: 30.0, separation: 3.0, numPoints: 500, offset: CGPoint(x: 600, y: 300))
     
     var beziers: [UIBezierPath] = []
     beziers.removeAll()
@@ -32,7 +33,7 @@ class ViewController: UIViewController {
     var tmpLayer: CAShapeLayer
     
     for point in spiralPoints {
-      beziers.append(createBezierPath(point1: CGPoint(x: 0, y: 300), point2: point, point3: CGPoint(x: 0, y: 800)))
+      beziers.append(createBezierPath(point1: CGPoint(x: 100, y: 300), point2: point, point3: CGPoint(x: -100, y: 800)))
     }
     tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.brown)
     backgroundView.layer.addSublayer(tmpLayer)
@@ -58,8 +59,8 @@ class ViewController: UIViewController {
     animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
     
     beziers.removeAll()
-    for point in spiralPoints {
-      beziers.append(createBezierPath(point1: point, point2: CGPoint(x: 600, y: 300), point3: CGPoint(x: 800, y: 800)))
+    for (i, point) in spiralPoints.enumerated() {
+      beziers.append(createBezierPath(point1: point, point2: spiral2Points[i], point3: CGPoint(x: 800, y: 800)))
     }
     tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.black)
     backgroundView.layer.addSublayer(tmpLayer)
