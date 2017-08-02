@@ -100,8 +100,10 @@ class ViewController: UIViewController {
     // Triangle 5
     tmpPoints.removeAll()
     
-    for point in spiralPoints1 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 387, y: -96), point3: CGPoint(x: 822, y: 572)))
+    let spiralPoints5 = drawSpiral(arc: 9, separation: 0.8, numPoints: numberOfPoints, offset: CGPoint(x: 822, y: 572))
+    
+    for (i, point) in spiralPoints1.enumerated() {
+      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 387, y: -96), point3: spiralPoints5[i]))
     }
     
     drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
@@ -113,7 +115,7 @@ class ViewController: UIViewController {
     let spiralPoints3 = drawSpiral(arc: 15, separation: 0.5, numPoints: numberOfPoints, offset: CGPoint(x: 510, y: 943))
     
     for (i, point) in spiralPoints1.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 822, y: 572), point3: spiralPoints3[i]))
+      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints5[i], point3: spiralPoints3[i]))
     }
     
     drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[2]))
@@ -178,6 +180,7 @@ class ViewController: UIViewController {
     
     drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[4]))
     
+    
     // Triangle 13
     tmpPoints.removeAll()
     
@@ -190,46 +193,15 @@ class ViewController: UIViewController {
     drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
     
     
-//    beziers.removeAll()
-//    
-//    
-//    
-//    
-//    
-//    for point in spiralPoints {
-//      beziers.append(createBezierPath(point1: CGPoint(x: 100, y: 300), point2: point, point3: CGPoint(x: -100, y: 800)))
-//    }
-//    tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.brown)
-//    backgroundView.layer.addSublayer(tmpLayer)
-//    layers.append(tmpLayer)
-//    animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
-//    
-//    beziers.removeAll()
-//    for point in spiralPoints {
-//      beziers.append(createBezierPath(point1: CGPoint(x: 0, y: 800), point2: point, point3: CGPoint(x: 0, y: 1080)))
-//    }
-//    tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.green)
-//    backgroundView.layer.addSublayer(tmpLayer)
-//    layers.append(tmpLayer)
-//    animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
-//    
-//    beziers.removeAll()
-//    for point in spiralPoints {
-//      beziers.append(createBezierPath(point1: CGPoint(x: 0, y: 1080), point2: point, point3: CGPoint(x: 600, y: 1080)))
-//    }
-//    tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.gray)
-//    backgroundView.layer.addSublayer(tmpLayer)
-//    layers.append(tmpLayer)
-//    animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
-//    
-//    beziers.removeAll()
-//    for (i, point) in spiralPoints.enumerated() {
-//      beziers.append(createBezierPath(point1: point, point2: spiral2Points[i], point3: CGPoint(x: 800, y: 800)))
-//    }
-//    tmpLayer = createTriangleLayer(path: beziers.first!, fillColor: UIColor.black)
-//    backgroundView.layer.addSublayer(tmpLayer)
-//    layers.append(tmpLayer)
-//    animatedBeziers.append(AnimatableElement(beziers: beziers, layer: tmpLayer))
+    // Triangle 14
+    tmpPoints.removeAll()
+    
+    for (i, point) in spiralPoints3.enumerated() {
+      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints4[i], point3: spiralPoints5[i]))
+    }
+    
+    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[4]))
+    
     
     for elem in animatedBeziers {
       
