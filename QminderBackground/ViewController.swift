@@ -53,14 +53,14 @@ class ViewController: UIViewController {
     // Spiral points
     let numberOfPoints = 300
     
-    let spiralPoints1 = drawSpiral(arc: 22.0, separation: 0.4, numPoints: numberOfPoints, offset: CGPoint(x: 165, y: 600))
-    let spiralPoints2 = drawSpiral(arc: 5.0, separation: 0.3, numPoints: numberOfPoints, offset: CGPoint(x: 316, y: 1051))
-    let spiralPoints3 = drawSpiral(arc: 15.0, separation: 0.5, numPoints: numberOfPoints, offset: CGPoint(x: 510, y: 943))
-    let spiralPoints4 = drawSpiral(arc: 17, separation: 0.2, numPoints: numberOfPoints, offset: CGPoint(x: 1252, y: 745))
-    let spiralPoints5 = drawSpiral(arc: 9.0, separation: 0.8, numPoints: numberOfPoints, offset: CGPoint(x: 822, y: 572))
-    let spiralPoints6 = drawSpiral(arc: 10.0, separation: 0.2, numPoints: numberOfPoints, offset: CGPoint(x: 1014, y: 383))
-    let spiralPoints7 = drawSpiral(arc: 12.0, separation: 0.7, numPoints: numberOfPoints, offset: CGPoint(x: 1585, y: 214))
-    let spiralPoints8 = drawSpiral(arc: 17.0, separation: 0.6, numPoints: numberOfPoints, offset: CGPoint(x: 1488, y: 381))
+    let spiralPoints1 = drawSpiral(arc: 20.0, separation: 0.8, numPoints: numberOfPoints, center: CGPoint(x: 165, y: 600))
+    let spiralPoints2 = drawSpiral(arc: 3.0, separation: 0.5, numPoints: numberOfPoints, center: CGPoint(x: 316, y: 1051), rotationDegrees: 90.0, invert: true)
+    let spiralPoints3 = drawSpiral(arc: 8.0, separation: 0.6, numPoints: numberOfPoints, center: CGPoint(x: 510, y: 943), rotationDegrees: 45.0)
+    let spiralPoints4 = drawSpiral(arc: 17.0, separation: 0.5, numPoints: numberOfPoints, center: CGPoint(x: 1252, y: 745), rotationDegrees: 180.0, invert: true)
+    let spiralPoints5 = drawSpiral(arc: 16.0, separation: 0.5, numPoints: numberOfPoints, center: CGPoint(x: 822, y: 572), rotationDegrees: 45.0)
+    let spiralPoints6 = drawSpiral(arc: 7.0, separation: 0.3, numPoints: numberOfPoints, center: CGPoint(x: 1014, y: 383), rotationDegrees: 30.0, invert: true)
+    let spiralPoints7 = drawSpiral(arc: 6.0, separation: 0.4, numPoints: numberOfPoints, center: CGPoint(x: 1585, y: 214), rotationDegrees: 270.0)
+    let spiralPoints8 = drawSpiral(arc: 8.0, separation: 0.5, numPoints: numberOfPoints, center: CGPoint(x: 1488, y: 381), rotationDegrees: 200.0, invert: true)
     
     var tmpPoints: [TrianglePoints] = []
     
@@ -351,6 +351,8 @@ class ViewController: UIViewController {
     
     for elem in animatedBeziers {
       
+      let animTime = 2.0
+      
       let group = CAAnimationGroup()
       var animations: [CAAnimation] = []
       
@@ -361,10 +363,11 @@ class ViewController: UIViewController {
         let animation = CABasicAnimation(keyPath: "path")
         animation.fromValue = elem.beziers[i].cgPath
         animation.toValue = elem.beziers[i+1].cgPath
-        animation.duration = 1.0
-        animation.beginTime = CFTimeInterval(1 * i)
+        animation.duration = animTime //1.0
+        animation.beginTime = CFTimeInterval(animTime * Double(i))
         animation.isRemovedOnCompletion = false
         animation.fillMode = kCAFillModeForwards
+        animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
         
         animations.append(animation)
       }
@@ -372,7 +375,7 @@ class ViewController: UIViewController {
       group.autoreverses = true
       group.animations = animations
       group.repeatCount = .infinity
-      group.duration = CFTimeInterval(animations.count)
+      group.duration = CFTimeInterval(Double(animations.count) * animTime)
 
       elem.layer.add(group, forKey: "anim")
     }
@@ -399,7 +402,7 @@ class ViewController: UIViewController {
     return shapeLayer
   }
   
-  func drawSpiral(arc: Double, separation: Double, numPoints: Int, offset: CGPoint) -> [CGPoint] {
+  func drawSpiral(arc: Double, separation: Double, numPoints: Int, center: CGPoint, rotationDegrees: CGFloat = 0, invert: Bool = false) -> [CGPoint] {
     
     /**
      generate points on an Archimedes' spiral
@@ -412,13 +415,40 @@ class ViewController: UIViewController {
     
     var numPoints = numPoints
     
+    func flip(point: CGPoint) -> CGPoint {
+//      return CGPoint(x: center.x - point.x, y: center.y - point.y)
+      let tmpX = point.x
+      return CGPoint(x: -point.y, y: tmpX)
+    }
+    
+    func rotatePoint(target: CGPoint, aroundOrigin origin: CGPoint, byDegrees: CGFloat) -> CGPoint {
+      let dx = target.x - origin.x
+      let dy = target.y - origin.y
+      let radius = sqrt(dx * dx + dy * dy)
+      let azimuth = atan2(dy, dx) // in radians
+      let newAzimuth = azimuth + byDegrees * CGFloat(Double.pi/180.0) // convert it to radians
+      let x = origin.x + radius * cos(newAzimuth)
+      let y = origin.y + radius * sin(newAzimuth)
+      return CGPoint(x: x, y: y)
+    }
+    
     // polar to cartesian
-    func p2c(r:Double, phi: Double, offset: CGPoint) -> CGPoint {
-      return CGPoint(x: CGFloat(r * cos(phi)) + offset.x, y: CGFloat(r * sin(phi)) + offset.y)
+    func p2c(r:Double, phi: Double) -> CGPoint {
+      
+      var x = r * cos(phi)
+      var y = r * sin(phi)
+      
+      if invert {
+        let tmpX = x
+        x = -y
+        y = -tmpX
+      }
+      
+      return rotatePoint(target: CGPoint(x: CGFloat(x) + center.x, y: CGFloat(y) + center.y), aroundOrigin: center, byDegrees: rotationDegrees)
     }
     
     // yield a point at origin
-    var result = [CGPoint(x:0 + offset.x, y: 0 + offset.y)]
+    var result = [CGPoint(x:0 + center.x, y: 0 + center.y)]
     
     // initialize the next point in the required distance
     var r = arc
@@ -428,7 +458,7 @@ class ViewController: UIViewController {
     var phi = r / b
     
     while numPoints > 0 {
-      result.append(p2c(r: r, phi: phi, offset: offset))
+      result.append(p2c(r: r, phi: phi))
       
       //      advance the variables
       //      calculate phi that will give desired arc length at current radius
