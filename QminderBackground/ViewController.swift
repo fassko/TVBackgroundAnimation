@@ -23,7 +23,41 @@ class ViewController: UIViewController {
     super.viewDidLoad()
   }
   
-  func drawTriangle(points: [TrianglePoints], fillColor: UIColor) {
+  func drawTriangle(point1: CGPoint, point2: CGPoint, point3: CGPoint, fillColor: UIColor){
+    drawTriangle(points1: [point1], points2: [point2], points3: [point3], fillColor: fillColor)
+  }
+  
+  func drawTriangle(points1: [CGPoint], point2: CGPoint, point3: CGPoint, fillColor: UIColor){
+    drawTriangle(points1: points1, points2: [point2], points3: [point3], fillColor: fillColor)
+  }
+  
+  func drawTriangle(points1: [CGPoint], points2: [CGPoint], point3: CGPoint, fillColor: UIColor){
+    drawTriangle(points1: points1, points2: points2, points3: [point3], fillColor: fillColor)
+  }
+  
+  func drawTriangle(points1: [CGPoint], points2: [CGPoint], points3: [CGPoint], fillColor: UIColor){
+    var beziers: [UIBezierPath] = []
+    
+    for (i, point1) in points1.enumerated() {
+      beziers.append(createBezierPath(point1: point1, point2: (points2.count > 1 ? points2[i] : points2.first!), point3: (points3.count > 1 ? points3[i] : points3.first!)))
+    }
+    
+    guard let path = beziers.first else {
+      return
+    }
+    
+    let shapeLayer = CAShapeLayer()
+    shapeLayer.path = path.cgPath
+    shapeLayer.lineWidth = 0
+    shapeLayer.fillColor = fillColor.cgColor
+    backgroundView.layer.addSublayer(shapeLayer)
+    
+    if points1.count > 1 {
+      animatedBeziers.append(AnimatableElement(beziers: beziers, layer: shapeLayer))
+    }
+  }
+  
+  func drawTriangle_old(points: [TrianglePoints], fillColor: UIColor) {
     var beziers: [UIBezierPath] = []
     
     for p in points {
@@ -51,7 +85,7 @@ class ViewController: UIViewController {
     let alphaLevels = [CGFloat(0.0), CGFloat(0.1), CGFloat(0.25), CGFloat(0.4), CGFloat(0.55)]
     
     // Spiral points
-    let numberOfPoints = 300
+    let numberOfPoints = 500
     
     let spiralPoints1 = drawSpiral(arc: 20.0, separation: 0.8, numPoints: numberOfPoints, center: CGPoint(x: 165, y: 600))
     let spiralPoints2 = drawSpiral(arc: 3.0, separation: 0.5, numPoints: numberOfPoints, center: CGPoint(x: 316, y: 1051), rotationDegrees: 90.0, invert: true)
@@ -62,292 +96,96 @@ class ViewController: UIViewController {
     let spiralPoints7 = drawSpiral(arc: 6.0, separation: 0.4, numPoints: numberOfPoints, center: CGPoint(x: 1585, y: 214), rotationDegrees: 270.0)
     let spiralPoints8 = drawSpiral(arc: 8.0, separation: 0.5, numPoints: numberOfPoints, center: CGPoint(x: 1488, y: 381), rotationDegrees: 200.0, invert: true)
     
-    var tmpPoints: [TrianglePoints] = []
-    
     // Triangle 1
-    drawTriangle(points: [TrianglePoints(point1: CGPoint.zero, point2: CGPoint(x: 387, y: -96), point3: CGPoint(x: 0, y: 270))], fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
+    drawTriangle(point1: CGPoint.zero, point2: CGPoint(x: 387, y: -96), point3: CGPoint(x: 0, y: 270), fillColor: color.withAlphaComponent(alphaLevels[0]))
     
     // Triangle 2
-    
-    for point in spiralPoints1 {
-      tmpPoints.append(TrianglePoints(point1: CGPoint(x: 0, y: 270), point2: point, point3: CGPoint(x: -462, y: 850)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[2]))
-    
+    drawTriangle(points1: spiralPoints1, point2: CGPoint(x: 0, y: 270), point3: CGPoint(x: -462, y: 850), fillColor: color.withAlphaComponent(alphaLevels[3]))
     
     // Triangle 3
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints1 {
-      tmpPoints.append(TrianglePoints(point1: CGPoint(x: 0, y: 270), point2: point, point3: CGPoint(x: 387, y: -96)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[3]))
-    
+    drawTriangle(points1: spiralPoints1, point2: CGPoint(x: 0, y: 270), point3: CGPoint(x: 387, y: -96),  fillColor: color.withAlphaComponent(alphaLevels[4]))
     
     // Triangle 4
-    tmpPoints.removeAll()
+    drawTriangle(points1: spiralPoints1, points2: spiralPoints2, point3: CGPoint(x: -462, y: 850), fillColor: color.withAlphaComponent(alphaLevels[2]))
 
-    for (i, point) in spiralPoints1.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints2[i], point3: CGPoint(x: -462, y: 850)))
-    }
-
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[3]))
-    
-    
     // Triangle 5
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints1.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 387, y: -96), point3: spiralPoints5[i]))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
-    
+    drawTriangle(points1: spiralPoints1, points2: spiralPoints5, point3: CGPoint(x: 387, y: -96), fillColor: color.withAlphaComponent(alphaLevels[3]))
+
     // Triangle 6
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints1.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints5[i], point3: spiralPoints3[i]))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[2]))
-    
-    
+    drawTriangle(points1: spiralPoints1, points2: spiralPoints5, points3: spiralPoints3, fillColor: color.withAlphaComponent(alphaLevels[4]))
+
     // Triangle 7
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints1.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints3[i], point3: spiralPoints2[i]))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[4]))
-    
-    
+    drawTriangle(points1: spiralPoints1, points2: spiralPoints3, points3: spiralPoints2, fillColor: color.withAlphaComponent(alphaLevels[0]))
+
     // Triangle 8
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints2 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: -462, y: 850), point3: CGPoint(x: -205, y: 1200)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
-    
+    drawTriangle(points1: spiralPoints2, point2: CGPoint(x: -462, y: 850), point3: CGPoint(x: -205, y: 1200), fillColor: color.withAlphaComponent(alphaLevels[0]))
+
     // Triangle 9
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints2 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: -205, y: 1200), point3: CGPoint(x: 140, y: 1290)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[2]))
-    
+    drawTriangle(points1: spiralPoints2, point2: CGPoint(x: -205, y: 1200), point3: CGPoint(x: 140, y: 1290), fillColor: color.withAlphaComponent(alphaLevels[3]))
     
     // Triangle 10
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints2 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 140, y: 1290), point3: CGPoint(x: 473, y: 1080)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[4]))
-    
-    
+    drawTriangle(points1: spiralPoints2, point2: CGPoint(x: 140, y: 1290), point3: CGPoint(x: 473, y: 1080), fillColor: color.withAlphaComponent(alphaLevels[4]))
+
     // Triangle 11
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints2.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints3[i], point3: CGPoint(x: 473, y: 1080)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
-    
+    drawTriangle(points1: spiralPoints2, points2: spiralPoints3, point3: CGPoint(x: 473, y: 1080), fillColor: color.withAlphaComponent(alphaLevels[3]))
+
     // Triangle 12
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints3 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 473, y: 1080), point3: CGPoint(x: 785, y: 1285)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[4]))
-    
-    
+    drawTriangle(points1: spiralPoints3, point2: CGPoint(x: 473, y: 1080), point3: CGPoint(x: 785, y: 1285), fillColor: color.withAlphaComponent(alphaLevels[4]))
+
     // Triangle 13
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints3.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints4[i], point3: CGPoint(x: 785, y: 1285)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
-    
+    drawTriangle(points1: spiralPoints3, points2: spiralPoints4, point3: CGPoint(x: 785, y: 1285), fillColor: color.withAlphaComponent(alphaLevels[1]))
+
     // Triangle 14
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints3.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints4[i], point3: spiralPoints5[i]))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[4]))
-    
+    drawTriangle(points1: spiralPoints3, points2: spiralPoints4, points3: spiralPoints5, fillColor: color.withAlphaComponent(alphaLevels[3]))
     
     // Triangle 15
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints5 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 387, y: -96), point3: CGPoint(x: 910, y: -170)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[2]))
-    
-    
+    drawTriangle(points1: spiralPoints5, point2: CGPoint(x: 387, y: -96), point3: CGPoint(x: 910, y: -170), fillColor: color.withAlphaComponent(alphaLevels[2]))
+
     // Triangle 16
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints5.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints6[i], point3: CGPoint(x: 910, y: -170)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[4]))
-    
-    
+    drawTriangle(points1: spiralPoints5, points2: spiralPoints6, point3: CGPoint(x: 910, y: -170), fillColor: color.withAlphaComponent(alphaLevels[4]))
+
     // Triangle 17
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints6 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 910, y: -170), point3: CGPoint(x: 1233, y: -114)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
-    
+    drawTriangle(points1: spiralPoints6, point2: CGPoint(x: 910, y: -170), point3: CGPoint(x: 1233, y: -114), fillColor: color.withAlphaComponent(alphaLevels[1]))
+
     // Triangle 18
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints4.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints5[i], point3: spiralPoints6[i]))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
-    
+    drawTriangle(points1: spiralPoints4, points2: spiralPoints5, points3: spiralPoints6, fillColor: color.withAlphaComponent(alphaLevels[1]))
+  
     // Triangle 19
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints4 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 785, y: 1285), point3: CGPoint(x: 1330, y: 1166)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[2]))
-    
-    
+    drawTriangle(points1: spiralPoints4, point2: CGPoint(x: 785, y: 1285), point3: CGPoint(x: 1330, y: 1166), fillColor: color.withAlphaComponent(alphaLevels[2]))
+
     // Triangle 20
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints4.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints8[i], point3: CGPoint(x: 1330, y: 1166)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
+    drawTriangle(points1: spiralPoints4, points2: spiralPoints8, point3: CGPoint(x: 1330, y: 1166), fillColor: color.withAlphaComponent(alphaLevels[1]))
     
     // Triangle 21
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints4.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints6[i], point3: spiralPoints8[i]))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[3]))
-    
-    
+    drawTriangle(points1: spiralPoints4, points2: spiralPoints6, points3: spiralPoints8, fillColor: color.withAlphaComponent(alphaLevels[3]))
+
     // Triangle 22
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints6.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints7[i], point3: spiralPoints8[i]))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[2]))
-    
-    
+    drawTriangle(points1: spiralPoints6, points2: spiralPoints7, points3: spiralPoints8, fillColor: color.withAlphaComponent(alphaLevels[2]))
+
     // Triangle 23
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints6.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints7[i], point3: CGPoint(x: 1233, y: -114)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[3]))
-    
-    
+    drawTriangle(points1: spiralPoints6, points2: spiralPoints7, point3: CGPoint(x: 1233, y: -114), fillColor: color.withAlphaComponent(alphaLevels[3]))
+
     // Triangle 24
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints7 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 1233, y: -114), point3: CGPoint(x: 1713, y: -298)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
-    
+    drawTriangle(points1: spiralPoints7, point2: CGPoint(x: 1233, y: -114), point3: CGPoint(x: 1713, y: -298), fillColor: color.withAlphaComponent(alphaLevels[1]))
+
     // Triangle 25
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints7 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 1713, y: -298), point3: CGPoint(x: 2044, y: 99)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[2]))
-    
+    drawTriangle(points1: spiralPoints7, point2: CGPoint(x: 1713, y: -298), point3: CGPoint(x: 2044, y: 99), fillColor: color.withAlphaComponent(alphaLevels[2]))
+
     // Triangle 26
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints7 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 2044, y: 99), point3: CGPoint(x: 1920, y: 560)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[3]))
-    
-    
+    drawTriangle(points1: spiralPoints7, point2: CGPoint(x: 2044, y: 99), point3: CGPoint(x: 1920, y: 560), fillColor: color.withAlphaComponent(alphaLevels[3]))
+
     // Triangle 27
-    tmpPoints.removeAll()
-    
-    for (i, point) in spiralPoints7.enumerated() {
-      tmpPoints.append(TrianglePoints(point1: point, point2: spiralPoints8[i], point3: CGPoint(x: 1920, y: 560)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[1]))
-    
-    
+    drawTriangle(points1: spiralPoints7, points2: spiralPoints8, point3: CGPoint(x: 1920, y: 560), fillColor: color.withAlphaComponent(alphaLevels[1]))
+
     // Triangle 28
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints8 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 1920, y: 560), point3: CGPoint(x: 2006, y: 1010)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[3]))
-    
-    
+    drawTriangle(points1: spiralPoints8, point2: CGPoint(x: 1920, y: 560), point3: CGPoint(x: 2006, y: 1010), fillColor: color.withAlphaComponent(alphaLevels[3]))
+
     // Triangle 29
-    tmpPoints.removeAll()
-    
-    for point in spiralPoints8 {
-      tmpPoints.append(TrianglePoints(point1: point, point2: CGPoint(x: 2006, y: 1010), point3: CGPoint(x: 1330, y: 1166)))
-    }
-    
-    drawTriangle(points: tmpPoints, fillColor: color.withAlphaComponent(alphaLevels[2]))
-    
-    
+    drawTriangle(points1: spiralPoints8, point2: CGPoint(x: 2006, y: 1010), point3: CGPoint(x: 1330, y: 1166), fillColor: color.withAlphaComponent(alphaLevels[2]))
+
     // Triangle 30
-    drawTriangle(points: [TrianglePoints(point1: CGPoint(x: 2006, y: 1010), point2: CGPoint(x: 1330, y: 1166), point3: CGPoint(x: 1950, y: 1135))], fillColor: color.withAlphaComponent(alphaLevels[4]))
+    drawTriangle(point1: CGPoint(x: 2006, y: 1010), point2: CGPoint(x: 1330, y: 1166), point3: CGPoint(x: 1950, y: 1135), fillColor: color.withAlphaComponent(alphaLevels[4]))
+    
     
     for elem in animatedBeziers {
       
@@ -414,12 +252,6 @@ class ViewController: UIViewController {
      **/
     
     var numPoints = numPoints
-    
-    func flip(point: CGPoint) -> CGPoint {
-//      return CGPoint(x: center.x - point.x, y: center.y - point.y)
-      let tmpX = point.x
-      return CGPoint(x: -point.y, y: tmpX)
-    }
     
     func rotatePoint(target: CGPoint, aroundOrigin origin: CGPoint, byDegrees: CGFloat) -> CGPoint {
       let dx = target.x - origin.x
