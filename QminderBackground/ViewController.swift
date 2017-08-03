@@ -11,8 +11,6 @@ import QuartzCore
 
 typealias AnimatableElement = (beziers: [UIBezierPath], layer: CAShapeLayer)
 
-typealias TrianglePoints = (point1: CGPoint, point2: CGPoint, point3: CGPoint)
-
 class ViewController: UIViewController {
   
   @IBOutlet weak var backgroundView: UIView!
@@ -21,62 +19,6 @@ class ViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-  }
-  
-  func drawTriangle(point1: CGPoint, point2: CGPoint, point3: CGPoint, fillColor: UIColor){
-    drawTriangle(points1: [point1], points2: [point2], points3: [point3], fillColor: fillColor)
-  }
-  
-  func drawTriangle(points1: [CGPoint], point2: CGPoint, point3: CGPoint, fillColor: UIColor){
-    drawTriangle(points1: points1, points2: [point2], points3: [point3], fillColor: fillColor)
-  }
-  
-  func drawTriangle(points1: [CGPoint], points2: [CGPoint], point3: CGPoint, fillColor: UIColor){
-    drawTriangle(points1: points1, points2: points2, points3: [point3], fillColor: fillColor)
-  }
-  
-  func drawTriangle(points1: [CGPoint], points2: [CGPoint], points3: [CGPoint], fillColor: UIColor){
-    var beziers: [UIBezierPath] = []
-    
-    for (i, point1) in points1.enumerated() {
-      beziers.append(createBezierPath(point1: point1, point2: (points2.count > 1 ? points2[i] : points2.first!), point3: (points3.count > 1 ? points3[i] : points3.first!)))
-    }
-    
-    guard let path = beziers.first else {
-      return
-    }
-    
-    let shapeLayer = CAShapeLayer()
-    shapeLayer.path = path.cgPath
-    shapeLayer.lineWidth = 0
-    shapeLayer.fillColor = fillColor.cgColor
-    backgroundView.layer.addSublayer(shapeLayer)
-    
-    if points1.count > 1 {
-      animatedBeziers.append(AnimatableElement(beziers: beziers, layer: shapeLayer))
-    }
-  }
-  
-  func drawTriangle_old(points: [TrianglePoints], fillColor: UIColor) {
-    var beziers: [UIBezierPath] = []
-    
-    for p in points {
-      beziers.append(createBezierPath(point1: p.point1, point2: p.point2, point3: p.point3))
-    }
-    
-    guard let path = beziers.first else {
-      return
-    }
-    
-    let shapeLayer = CAShapeLayer()
-    shapeLayer.path = path.cgPath
-    shapeLayer.lineWidth = 0
-    shapeLayer.fillColor = fillColor.cgColor
-    backgroundView.layer.addSublayer(shapeLayer)
-    
-    if points.count > 1 {
-      animatedBeziers.append(AnimatableElement(beziers: beziers, layer: shapeLayer))
-    }
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -95,6 +37,7 @@ class ViewController: UIViewController {
     let spiralPoints6 = drawSpiral(arc: 7.0, separation: 0.3, numPoints: numberOfPoints, center: CGPoint(x: 1014, y: 383), rotationDegrees: 30.0, invert: true)
     let spiralPoints7 = drawSpiral(arc: 6.0, separation: 0.4, numPoints: numberOfPoints, center: CGPoint(x: 1585, y: 214), rotationDegrees: 270.0)
     let spiralPoints8 = drawSpiral(arc: 8.0, separation: 0.5, numPoints: numberOfPoints, center: CGPoint(x: 1488, y: 381), rotationDegrees: 200.0, invert: true)
+    
     
     // Triangle 1
     drawTriangle(point1: CGPoint.zero, point2: CGPoint(x: 387, y: -96), point3: CGPoint(x: 0, y: 270), fillColor: color.withAlphaComponent(alphaLevels[0]))
@@ -151,13 +94,13 @@ class ViewController: UIViewController {
     drawTriangle(points1: spiralPoints4, points2: spiralPoints5, points3: spiralPoints6, fillColor: color.withAlphaComponent(alphaLevels[1]))
   
     // Triangle 19
-    drawTriangle(points1: spiralPoints4, point2: CGPoint(x: 785, y: 1285), point3: CGPoint(x: 1330, y: 1166), fillColor: color.withAlphaComponent(alphaLevels[2]))
+    drawTriangle(points1: spiralPoints4, point2: CGPoint(x: 785, y: 1285), point3: CGPoint(x: 1330, y: 1166), fillColor: color.withAlphaComponent(alphaLevels[0]))
 
     // Triangle 20
-    drawTriangle(points1: spiralPoints4, points2: spiralPoints8, point3: CGPoint(x: 1330, y: 1166), fillColor: color.withAlphaComponent(alphaLevels[1]))
+    drawTriangle(points1: spiralPoints4, points2: spiralPoints8, point3: CGPoint(x: 1330, y: 1166), fillColor: color.withAlphaComponent(alphaLevels[3]))
     
     // Triangle 21
-    drawTriangle(points1: spiralPoints4, points2: spiralPoints6, points3: spiralPoints8, fillColor: color.withAlphaComponent(alphaLevels[3]))
+    drawTriangle(points1: spiralPoints4, points2: spiralPoints6, points3: spiralPoints8, fillColor: color.withAlphaComponent(alphaLevels[0]))
 
     // Triangle 22
     drawTriangle(points1: spiralPoints6, points2: spiralPoints7, points3: spiralPoints8, fillColor: color.withAlphaComponent(alphaLevels[2]))
@@ -169,7 +112,7 @@ class ViewController: UIViewController {
     drawTriangle(points1: spiralPoints7, point2: CGPoint(x: 1233, y: -114), point3: CGPoint(x: 1713, y: -298), fillColor: color.withAlphaComponent(alphaLevels[1]))
 
     // Triangle 25
-    drawTriangle(points1: spiralPoints7, point2: CGPoint(x: 1713, y: -298), point3: CGPoint(x: 2044, y: 99), fillColor: color.withAlphaComponent(alphaLevels[2]))
+    drawTriangle(points1: spiralPoints7, point2: CGPoint(x: 1713, y: -298), point3: CGPoint(x: 2044, y: 99), fillColor: color.withAlphaComponent(alphaLevels[0]))
 
     // Triangle 26
     drawTriangle(points1: spiralPoints7, point2: CGPoint(x: 2044, y: 99), point3: CGPoint(x: 1920, y: 560), fillColor: color.withAlphaComponent(alphaLevels[3]))
@@ -181,7 +124,7 @@ class ViewController: UIViewController {
     drawTriangle(points1: spiralPoints8, point2: CGPoint(x: 1920, y: 560), point3: CGPoint(x: 2006, y: 1010), fillColor: color.withAlphaComponent(alphaLevels[3]))
 
     // Triangle 29
-    drawTriangle(points1: spiralPoints8, point2: CGPoint(x: 2006, y: 1010), point3: CGPoint(x: 1330, y: 1166), fillColor: color.withAlphaComponent(alphaLevels[2]))
+    drawTriangle(points1: spiralPoints8, point2: CGPoint(x: 2006, y: 1010), point3: CGPoint(x: 1330, y: 1166), fillColor: color.withAlphaComponent(alphaLevels[1]))
 
     // Triangle 30
     drawTriangle(point1: CGPoint(x: 2006, y: 1010), point2: CGPoint(x: 1330, y: 1166), point3: CGPoint(x: 1950, y: 1135), fillColor: color.withAlphaComponent(alphaLevels[4]))
@@ -201,7 +144,7 @@ class ViewController: UIViewController {
         let animation = CABasicAnimation(keyPath: "path")
         animation.fromValue = elem.beziers[i].cgPath
         animation.toValue = elem.beziers[i+1].cgPath
-        animation.duration = animTime //1.0
+        animation.duration = animTime
         animation.beginTime = CFTimeInterval(animTime * Double(i))
         animation.isRemovedOnCompletion = false
         animation.fillMode = kCAFillModeForwards
@@ -219,8 +162,44 @@ class ViewController: UIViewController {
     }
   }
   
+  
+  func drawTriangle(point1: CGPoint, point2: CGPoint, point3: CGPoint, fillColor: UIColor){
+    drawTriangle(points1: [point1], points2: [point2], points3: [point3], fillColor: fillColor)
+  }
+  
+  func drawTriangle(points1: [CGPoint], point2: CGPoint, point3: CGPoint, fillColor: UIColor){
+    drawTriangle(points1: points1, points2: [point2], points3: [point3], fillColor: fillColor)
+  }
+  
+  func drawTriangle(points1: [CGPoint], points2: [CGPoint], point3: CGPoint, fillColor: UIColor){
+    drawTriangle(points1: points1, points2: points2, points3: [point3], fillColor: fillColor)
+  }
+  
+  func drawTriangle(points1: [CGPoint], points2: [CGPoint], points3: [CGPoint], fillColor: UIColor){
+    var beziers: [UIBezierPath] = []
+    
+    for (i, point1) in points1.enumerated() {
+      beziers.append(createBezierPath(point1: point1, point2: (points2.count > 1 ? points2[i] : points2.first!), point3: (points3.count > 1 ? points3[i] : points3.first!)))
+    }
+    
+    guard let path = beziers.first else {
+      return
+    }
+    
+    let shapeLayer = CAShapeLayer()
+    shapeLayer.path = path.cgPath
+    shapeLayer.lineWidth = 0
+    shapeLayer.fillColor = fillColor.cgColor
+    backgroundView.layer.addSublayer(shapeLayer)
+    
+    if points1.count > 1 {
+      animatedBeziers.append(AnimatableElement(beziers: beziers, layer: shapeLayer))
+    }
+  }
+  
   func createBezierPath(point1: CGPoint, point2: CGPoint, point3: CGPoint) -> UIBezierPath {
     let bezierPath = UIBezierPath()
+    
     bezierPath.move(to: point1)
     bezierPath.addLine(to: point2)
     bezierPath.addLine(to: point3)
@@ -231,8 +210,8 @@ class ViewController: UIViewController {
   }
   
   func createTriangleLayer(path: UIBezierPath, fillColor: UIColor) -> CAShapeLayer {
-    
     let shapeLayer = CAShapeLayer()
+    
     shapeLayer.path = path.cgPath
     shapeLayer.lineWidth = 0
     shapeLayer.fillColor = fillColor.cgColor
@@ -305,10 +284,3 @@ class ViewController: UIViewController {
   }
   
 }
-
-
-/**
- 
- 
- 
- */
